@@ -77,7 +77,7 @@ export class DifyHelmStack extends cdk.Stack {
                     port: '80',
                     enableTLS: false,
                     image: {
-                        tag: '0.8.3', // replace for other versions
+                        tag: '0.11.1', // replace for other versions
                     },
                     edition: 'SELF_HOSTED',
                     storageType: 's3',

@@ -1,8 +1,4 @@
-# dify on AWS
-
-This helm chart is based on docker-compose provided by dify
-
-this helm is distributed with `Apache License 2.0`
+# solution-for-deploying-dify-on-aws
 
 ![Deployment Architecture](https://github.com/KevinZhao/dify_helm/blob/main/doc/Architecture.png?raw=true)
 
@@ -22,7 +18,7 @@ aws configure
 
 下载 cdk 代码
 ```bash
-git clone https://github.com/KevinZhao/dify_helm.git
+git clone https://github.com/aws-samples/solution-for-deploying-dify-on-aws.git
 cd dify_helm/dify-cdk/
 npm install
 ```
