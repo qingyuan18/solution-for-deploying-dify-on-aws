@@ -7,6 +7,7 @@ It utilized AWS managed services including ALB, EKS, Aurora PostgreSQL, Opensear
 All the services deployed using Graviton processors to take maximum advantage of AWS cost optimization.
 
 The default configuration is only for test purpose, please update the corresponding values in cdk.json for production use.
+
 Also, please consider to purchase dify enterprise version for production use in AWS marketplace.
 
 ![Deployment Architecture](https://github.com/aws-samples/solution-for-deploying-dify-on-aws/blob/main/doc/deployment_architecture.png?raw=true)
@@ -104,9 +105,6 @@ kubectl exec -it $(kubectl get pods -n dify -l app.kubernetes.io/component=api -
 
 After execution, you can access dify using http://ALBDNSName, and register as an administrator.
 
-Finally
-Happy dify with AWS
-
 About upgrade:
 dify community version is very active, please update the tag variable in dify-helm-stack.ts for upgrade.
 And then run cdk deploy and database initialization again.
@@ -122,3 +120,8 @@ And then run cdk deploy and database initialization again.
           extraBackendEnvs: [
 ```
 After upgrade, please run step5 again for database initialization.
+
+Finally
+Happy dify with AWS
+
+
