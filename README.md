@@ -1,6 +1,6 @@
 # solution-for-deploying-dify-on-aws
 
-![Deployment Architecture](https://github.com/KevinZhao/dify_helm/blob/main/doc/Architecture.png?raw=true)
+![Deployment Architecture](https://github.com/aws-samples/solution-for-deploying-dify-on-aws/blob/main/doc/deployment_architecture.png?raw=true)
 
 ## Install from CDK
 
