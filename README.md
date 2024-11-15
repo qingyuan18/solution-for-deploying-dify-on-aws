@@ -1,5 +1,14 @@
 # solution-for-deploying-dify-on-aws
 
+This solution demostrates how to deploy community version of dify on AWS using CDK.
+It also provide a solution for deploying langfuse as a plugin of dify for tracing and monitoring.
+
+It utilized AWS managed services including ALB, EKS, Aurora PostgreSQL, Opensearch, and S3.
+All the services deployed using Graviton processors to take maximum advantage of AWS cost optimization.
+
+The default configuration is only for test purpose, please update the corresponding values in cdk.json for production use.
+Also, please consider to purchase dify enterprise version for production use in AWS marketplace.
+
 ![Deployment Architecture](https://github.com/aws-samples/solution-for-deploying-dify-on-aws/blob/main/doc/deployment_architecture.png?raw=true)
 
 ## Install from CDK
@@ -11,43 +20,48 @@ sudo npm install -g aws-cdk
 sudo npm install -g typescript ts-node
 ```
 
-配置 AWS CLI
+Configure AWS CLI
 ```bash
 aws configure
 ```
 
-下载 cdk 代码
+Download cdk code
 ```bash
 git clone https://github.com/aws-samples/solution-for-deploying-dify-on-aws.git
 cd dify_helm/dify-cdk/
 npm install
 ```
 
-1.部署 dify社区版
+1.Deploy dify and langfuse
 
-配置 cdk.json
+Configure cdk.json for dify
 ```json
     "dbPassword": "Your.dbPassword.0910",
     "opensearchPassword": "Your.aosPassword.0910",
     "S3AccessKey": "Your.S3.AccessKey",
     "S3SecretKey": "Your.S3.SecretKey",
 ```
+[Optional] Configure cdk.json for langfuse
+```json
+    "nextAuthSecret":"openssl rand -base64 32",
+    "salt":"openssl rand -base64 32",
+```
 
-2.配置cdk环境，只需运行一次
+2.Configure cdk environment, only need to run once
 ```bash
 cdk synth
 cdk bootstrap
 ```
 
-3.部署 CDK
+3.Deploy CDK
 ```bash
 cdk deploy --all --concurrency 5 --require-approval never
 ```
-请一定使用并行部署，整个部署过程大概 20 分钟左右，如不使用并行，会花费额外时间。
+Please use concurrency deployment, the whole deployment process takes about 20 minutes, if not using concurrency, it will take extra time.
 
-4.部署后配置 helm 环境变量
-编辑 lib 目录下 dify-helm-stack.ts
-如果您没有自己的域名，请配置文件中的两个 host 变量为 CDK 创建的 ALB 的 DNSname，如：
+4.Configure helm environment variables
+Edit dify-helm-stack.ts in lib directory
+If you don't have your own domain, please configure the two host variables in the file to be the DNS name of the ALB created by CDK, such as:
 ```ts
     const difyHelm = new eks.HelmChart(this, 'DifyHelmChart', {
       cluster: props.cluster,
@@ -76,22 +90,35 @@ cdk deploy --all --concurrency 5 --require-approval never
             host: 'k8s-default-dify-324ef51b8a-687325639.us-east-1.elb.amazonaws.com',
 ```
 
-如果您有自己的域名，请配置自己的域名，并打开 tls，将自己的证书 ARN配置到'alb.ingress.kubernetes.io/certificate-arn'。
+If you have your own domain, please configure your domain, and open tls, and configure your certificate ARN to 'alb.ingress.kubernetes.io/certificate-arn'.
 
 
-其他环境变量的注入，请参考 https://docs.dify.ai/v/zh-hans/getting-started/install-self-hosted/environments
+Other environment variables injection, please refer to 
+https://docs.dify.ai/v/zh-hans/getting-started/install-self-hosted/environments
 
-5.dify 数据库初始化
-请找到一台可以连接 EKS 的终端，并运行
+5.dify database initialization
+Please find a terminal that can connect to EKS, and run
 ```bash
 kubectl exec -it $(kubectl get pods -n dify -l app.kubernetes.io/component=api -o jsonpath='{.items[0].metadata.name}') -n dify -- flask db upgrade
 ```
 
-执行后，可以使用 http://ALBDNSName的方式访问 dify，并进行进行管理员注册。
+After execution, you can access dify using http://ALBDNSName, and register as an administrator.
 
 Finally
 Happy dify with AWS
 
-关于升级：
-dify 社区版非常活跃，需要升级请更新 dify-helm-stack.ts 中的 tag 变量。
-并重新运行 cdk deploy，和数据库初始化。
+About upgrade:
+dify community version is very active, please update the tag variable in dify-helm-stack.ts for upgrade.
+And then run cdk deploy and database initialization again.
+```ts
+        global: {
+          host: '',
+          port: '',
+          enableTLS: false,
+          image: { tag: '0.11.1' },
+          edition: 'SELF_HOSTED',
+          storageType: 's3',
+          extraEnvs: [],
+          extraBackendEnvs: [
+```
+After upgrade, please run step5 again for database initialization.
