@@ -7,6 +7,7 @@ const ec2Client = new EC2Client({ region: 'us-west-2' });
 export async function getAvailableInstanceType(): Promise<string> {
   const instanceTypes = ['m7g.large', 'm6g.large', 'm6i.large'];
 
+
   for (const instanceType of instanceTypes) {
     const params = {
       Filters: [

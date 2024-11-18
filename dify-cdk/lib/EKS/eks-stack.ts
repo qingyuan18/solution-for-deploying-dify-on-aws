@@ -71,13 +71,13 @@ export class EKSStack extends cdk.Stack {
     // 异步获取可用的实例类型
     (async () => {
       const nodeInstanceType = await getAvailableInstanceType();
-      console.log(`Using instance type: ${nodeInstanceType}`);
+      console.log(`EKS Using instance type: ${nodeInstanceType}`);
 
       this.cluster.addNodegroupCapacity('NodeGroup', {
         instanceTypes: [new ec2.InstanceType(nodeInstanceType)],
         minSize: this.node.tryGetContext('NodeGroupMinSize') || 2,
         desiredSize: this.node.tryGetContext('NodeGroupDesiredSize') || 2,
-        maxSize: this.node.tryGetContext('NodeGroupMaxSize') || 4,
+        maxSize: this.node.tryGetContext('NodeGroupMaxSize') || 10,
         nodeRole: nodeGroupRole,
       });
     })();

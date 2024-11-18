@@ -1,0 +1,6 @@
+dify-cdk/cdk_oregon.json
+dify-cdk/cdk_original.json
+dify-cdk/bin/dify-helm-stack_oregon.ts
+dify-cdk/bin/dify-helm-stack_original.ts
+dify-cdk/cdk.out/
+dify-cdk/node_modules/

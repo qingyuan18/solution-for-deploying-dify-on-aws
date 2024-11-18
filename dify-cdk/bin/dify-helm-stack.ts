@@ -126,7 +126,7 @@ export class DifyHelmStack extends cdk.Stack {
           host: '',
           port: '',
           enableTLS: false,
-          image: { tag: '0.11.1' },
+          image: { tag: '0.11.2' },
           edition: 'SELF_HOSTED',
           storageType: 's3',
           extraEnvs: [],
@@ -248,7 +248,7 @@ export class DifyHelmStack extends cdk.Stack {
         },
 
         frontend: {
-          replicaCount: 1,
+          replicaCount: 2,
           image: {
             repository: 'langgenius/dify-web',
             pullPolicy: 'IfNotPresent',
@@ -271,12 +271,12 @@ export class DifyHelmStack extends cdk.Stack {
 
           containerPort: 3000, 
           resources: {
-            // limits: { cpu: '500m', memory: '512Mi' },
-            // requests: { cpu: '200m', memory: '256Mi' }
+            limits: { cpu: '256m', memory: '512Mi' },
+            requests: { cpu: '128m', memory: '256Mi' }
           },
           autoscaling: {
-            enabled: false,
-            minReplicas: 1,
+            enabled: true,
+            minReplicas: 2,
             maxReplicas: 100,
             targetCPUUtilizationPercentage: 80
           },
@@ -309,7 +309,7 @@ export class DifyHelmStack extends cdk.Stack {
         },
 
         api: {
-          replicaCount: 1,
+          replicaCount: 2,
           image: {
             repository: 'langgenius/dify-api',
             pullPolicy: 'IfNotPresent',
@@ -334,9 +334,16 @@ export class DifyHelmStack extends cdk.Stack {
           },
 
           containerPort: 5001, 
+
           resources: {
-            limits: { cpu: '2', memory: '2Gi' },
-            requests: { cpu: '1', memory: '1Gi' }
+            limits: { cpu: '1024m', memory: '2048Mi' },
+            requests: { cpu: '512m', memory: '1024Mi' }
+          },
+          autoscaling: {
+            enabled: true,
+            minReplicas: 2,
+            maxReplicas: 100,
+            targetCPUUtilizationPercentage: 60
           },
 
           livenessProbe: {
@@ -350,6 +357,7 @@ export class DifyHelmStack extends cdk.Stack {
             successThreshold: 1,
             failureThreshold: 5
           },
+
           readinessProbe: {
             httpGet: {
               path: '/health',
@@ -362,8 +370,9 @@ export class DifyHelmStack extends cdk.Stack {
             failureThreshold: 10
           }
         },
+
         worker: {
-          replicaCount: 1,
+          replicaCount: 2,
           image: {
             repository: 'langgenius/dify-api',
             pullPolicy: 'IfNotPresent',
@@ -372,14 +381,18 @@ export class DifyHelmStack extends cdk.Stack {
           podAnnotations: {},
           podSecurityContext: {},
           securityContext: {},
+
           resources: {
+            limits: { cpu: '256m', memory: '512Mi' },
+            requests: { cpu: '128m', memory: '256Mi' }
           },
           autoscaling: {
-            enabled: false,
-            minReplicas: 1,
+            enabled: true,
+            minReplicas: 2,
             maxReplicas: 100,
             targetCPUUtilizationPercentage: 80
           },
+
           livenessProbe: {
             
           },
@@ -387,8 +400,9 @@ export class DifyHelmStack extends cdk.Stack {
             
           }
         },
+
         sandbox: {
-          replicaCount: 1,
+          replicaCount: 2,
           apiKey: 'dify-sandbox', 
           apiKeySecret: '', 
           image: {
@@ -408,8 +422,18 @@ export class DifyHelmStack extends cdk.Stack {
             port: 80 
           },
           containerPort: 8194, 
+
           resources: {
+            limits: { cpu: '1024m', memory: '2048Mi' },
+            requests: { cpu: '512m', memory: '1024Mi' }
           },
+          autoscaling: {
+            enabled: true,
+            minReplicas: 2,
+            maxReplicas: 100,
+            targetCPUUtilizationPercentage: 60
+          },
+
           readinessProbe: {
             tcpSocket: {
               port: 'http'
