@@ -383,8 +383,8 @@ export class DifyHelmStack extends cdk.Stack {
           securityContext: {},
 
           resources: {
-            limits: { cpu: '256m', memory: '512Mi' },
-            requests: { cpu: '128m', memory: '256Mi' }
+            limits: { cpu: '256m', memory: '1024Mi' },
+            requests: { cpu: '128m', memory: '512Mi' }
           },
           autoscaling: {
             enabled: true,

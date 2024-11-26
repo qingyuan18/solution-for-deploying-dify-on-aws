@@ -21,9 +21,9 @@
     "opensearchPassword": "awsAWS09100910!",
     "S3AccessKey": "Your S3AccessKey",
     "S3SecretKey": "Your S3SecretKey",
-    "difySecretKey":"run openssl rand -base64 42 to create",
-    "nextAuthSecret":"openssl rand -base64 32",
-    "salt":"openssl rand -base64 32",
+    "difySecretKey":"J5SNSa8Cx6auHbNwoKM3mHV2cTGoauoza9zJ93WwCwtl0w/RDgY0dPeV",
+    "nextAuthSecret":"Kxg/iQevwQKRwtY9HhVo1mi8nPilYOJeyxngqPVYtuI=",
+    "salt":"SVMSi70+mrWLJU41NaXCBH8fa0GOvtt0TdjbFTUuTIk=",
     "@aws-cdk/aws-lambda:recognizeLayerVersion": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/core:target-partitions": [
