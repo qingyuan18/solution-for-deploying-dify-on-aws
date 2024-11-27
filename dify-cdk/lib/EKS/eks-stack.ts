@@ -75,8 +75,8 @@ export class EKSStack extends cdk.Stack {
 
       this.cluster.addNodegroupCapacity('NodeGroup', {
         instanceTypes: [new ec2.InstanceType(nodeInstanceType)],
-        minSize: this.node.tryGetContext('NodeGroupMinSize') || 2,
-        desiredSize: this.node.tryGetContext('NodeGroupDesiredSize') || 2,
+        minSize: this.node.tryGetContext('NodeGroupMinSize') || 3,
+        desiredSize: this.node.tryGetContext('NodeGroupDesiredSize') || 3,
         maxSize: this.node.tryGetContext('NodeGroupMaxSize') || 10,
         nodeRole: nodeGroupRole,
       });
