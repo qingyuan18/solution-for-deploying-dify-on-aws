@@ -29,20 +29,20 @@ aws configure
 Download cdk code
 ```bash
 git clone https://github.com/aws-samples/solution-for-deploying-dify-on-aws.git
-cd dify_helm/dify-cdk/
+cd solution-for-deploying-dify-on-aws/dify-cdk/
 npm install
 ```
 
 1.Deploy dify and langfuse
 
-Configure cdk.json for dify
+Configure cdk.json for dify, gnerate your own "difySecretKey" using "openssl rand -base64 42"
 ```json
     "dbPassword": "Your.dbPassword.0910",
     "opensearchPassword": "Your.aosPassword.0910",
     "S3AccessKey": "Your.S3.AccessKey",
     "S3SecretKey": "Your.S3.SecretKey",
 ```
-[Optional] Configure cdk.json for langfuse
+[Optional] Configure cdk.json for langfuse, gnerate your own "nextAuthSecret" and "salt" using "openssl rand -base64 32"
 ```json
     "nextAuthSecret":"openssl rand -base64 32",
     "salt":"openssl rand -base64 32",
@@ -97,8 +97,21 @@ If you have your own domain, please configure your domain, and open tls, and con
 Other environment variables injection, please refer to 
 https://docs.dify.ai/v/zh-hans/getting-started/install-self-hosted/environments
 
+Deploy CDK again to enable enviroment variables
+```bash
+cdk deploy --all --concurrency 5 --require-approval never
+```
+
 5.dify database initialization
-Please find a terminal that can connect to EKS, and run
+Configure "access entry" in EKS console for your user/role with policy "AmazonEKSAdminPolicy" and "AmazonEKSClusterAdminPolicy".
+
+Please find a terminal that can connect to EKS, and run below:
+
+```bash
+aws eks update-kubeconfig --region $region --name dify-eks
+```
+Initial dify database with database migration scripts
+
 ```bash
 kubectl exec -it $(kubectl get pods -n dify -l app.kubernetes.io/component=api -o jsonpath='{.items[0].metadata.name}') -n dify -- flask db upgrade
 ```
@@ -113,7 +126,7 @@ And then run cdk deploy and database initialization again.
           host: '',
           port: '',
           enableTLS: false,
-          image: { tag: '0.11.1' },
+          image: { tag: '0.12.1' },
           edition: 'SELF_HOSTED',
           storageType: 's3',
           extraEnvs: [],
