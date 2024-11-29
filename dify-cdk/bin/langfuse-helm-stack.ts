@@ -93,7 +93,7 @@ export class LangfuseHelmStack extends cdk.Stack {
           additionalEnv: [
             { 
               name: 'DATABASE_URL', 
-              value: `postgresql://postgres:${dbPassword}@${props.dbEndpoint}:${props.dbPort}/postgres-langfuse?schema=public` 
+              value: `postgresql://postgres:${dbPassword}@${props.dbEndpoint}:${props.dbPort}/postgres?schema=public` 
             }
           ],
           extraContainers: [],
@@ -119,18 +119,18 @@ export class LangfuseHelmStack extends cdk.Stack {
           auth: {
             username: "postgres",
             password: dbPassword,
-            database: "postgres-langfuse"
+            database: "postgres"
           }
         },
         // 添加资源限制和请求
         resources: {
           requests: {
             cpu: '100m',
-            memory: '256Mi'
+            memory: '512Mi'
           },
           limits: {
             cpu: '500m',
-            memory: '512Mi'
+            memory: '1024Mi'
           }
         },
         // Ingress 配置
