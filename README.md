@@ -1,5 +1,11 @@
 # solution-for-deploying-dify-on-aws
 
+11/29 
+Support for Valkey instead of Redis.
+Support Aurora Serverless v2, mini capacity default to 0 ACU.
+
+/*------------------------------------------------------------------------------------------------*/
+
 This solution demostrates how to deploy community version of dify on AWS using CDK.
 It also provide a solution for deploying langfuse as a plugin of dify for tracing and monitoring.
 

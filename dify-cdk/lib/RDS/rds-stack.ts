@@ -36,7 +36,7 @@ export class RDSStack extends cdk.Stack {
 
     this.cluster = new rds.DatabaseCluster(this, 'AuroraCluster', {
       engine: rds.DatabaseClusterEngine.auroraPostgres({
-        version: rds.AuroraPostgresEngineVersion.VER_15_4,
+        version: rds.AuroraPostgresEngineVersion.VER_15_7,
       }),
       vpc: props.vpc,
       vpcSubnets: props.subnets,
@@ -44,7 +44,7 @@ export class RDSStack extends cdk.Stack {
       clusterIdentifier: 'dify-db',
       defaultDatabaseName: 'dify',
       serverlessV2MaxCapacity: 4,
-      serverlessV2MinCapacity: 0.5,
+      serverlessV2MinCapacity: 0,
       securityGroups: [dbSecurityGroup],
       writer: rds.ClusterInstance.serverlessV2('writer', {
         instanceIdentifier: 'dify-db-writer',

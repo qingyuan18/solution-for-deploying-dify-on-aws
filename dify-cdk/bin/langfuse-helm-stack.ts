@@ -4,8 +4,6 @@ import * as eks from 'aws-cdk-lib/aws-eks';
 
 interface LangfuseHelmStackProps extends cdk.StackProps {
   cluster: eks.Cluster;
-
-  // RDS
   dbEndpoint: string;
   dbPort: string;
 }
@@ -29,6 +27,7 @@ export class LangfuseHelmStack extends cdk.Stack {
       throw new Error("Context variable 'salt' is missing");
     }
 
+    // 创建命名空间
     const ns = new eks.KubernetesManifest(this, "langfuse-ns", {
       cluster: props.cluster,
       manifest: [{
@@ -59,9 +58,9 @@ export class LangfuseHelmStack extends cdk.Stack {
         kind: "Secret",
         metadata: { name: "langfuse-auth-secret", namespace: "langfuse" },
         type: "Opaque",
-        data: {
-          nextauth_secret: Buffer.from(nextAuthSecret).toString('base64'),
-          salt: Buffer.from(salt).toString('base64')
+        stringData: {
+          nextauth_secret: nextAuthSecret,
+          salt: salt
         }
       }],
       overwrite: true
@@ -76,21 +75,65 @@ export class LangfuseHelmStack extends cdk.Stack {
       release: 'langfuse',
       namespace: 'langfuse',
       values: {
-        replicaCount: 2, 
+        replicaCount: 2,
         langfuse: {
           port: 3000,
           nodeEnv: 'production',
-          nextauth: {
-            url: `http://localhost:3000`
+          next: {
+            healthcheckBasePath: ""
           },
+          nextauth: {
+            url: `http://localhost:3000`,
+            secret: nextAuthSecret
+          },
+          salt: salt,
+          telemetryEnabled: false,
+          nextPublicSignUpDisabled: true,
+          enableExperimentalFeatures: false,
           additionalEnv: [
-            { name: 'DATABASE_URL', value: `postgresql://postgres:${dbPassword}@${props.dbEndpoint}:${props.dbPort}/postgres` },
-            { name: 'NEXTAUTH_SECRET', valueFrom: { secretKeyRef: { name: 'langfuse-auth-secret', key: 'nextauth_secret' } } },
-            { name: 'SALT', valueFrom: { secretKeyRef: { name: 'langfuse-auth-secret', key: 'salt' } } },
-            { name: 'LANGFUSE_LOG_LEVEL', value: 'info' },
-            { name: 'LANGFUSE_LOG_FORMAT', value: 'json' }
-          ]
+            { 
+              name: 'DATABASE_URL', 
+              value: `postgresql://postgres:${dbPassword}@${props.dbEndpoint}:${props.dbPort}/postgres-langfuse?schema=public` 
+            }
+          ],
+          extraContainers: [],
+          container: {
+            livenessProbe: {
+              initialDelaySeconds: 60,
+              periodSeconds: 15,
+              timeoutSeconds: 10,
+              failureThreshold: 3
+            },
+            readinessProbe: {
+              initialDelaySeconds: 60,
+              periodSeconds: 15,
+              timeoutSeconds: 10,
+              failureThreshold: 3
+            }
+          }
         },
+        // 数据库配置
+        postgresql: {
+          deploy: false,
+          host: props.dbEndpoint,
+          auth: {
+            username: "postgres",
+            password: dbPassword,
+            database: "postgres-langfuse"
+          }
+        },
+        // 添加资源限制和请求
+        resources: {
+          requests: {
+            cpu: '100m',
+            memory: '256Mi'
+          },
+          limits: {
+            cpu: '500m',
+            memory: '512Mi'
+          }
+        },
+        // Ingress 配置
         ingress: {
           enabled: true,
           className: 'alb',
@@ -98,7 +141,10 @@ export class LangfuseHelmStack extends cdk.Stack {
             'kubernetes.io/ingress.class': 'alb',
             'alb.ingress.kubernetes.io/scheme': 'internet-facing',
             'alb.ingress.kubernetes.io/target-type': 'ip',
-            'alb.ingress.kubernetes.io/listen-ports': '[{"HTTP": 80}]'
+            'alb.ingress.kubernetes.io/listen-ports': '[{"HTTP": 80}]',
+            'alb.ingress.kubernetes.io/healthcheck-path': '/api/public/health',
+            'alb.ingress.kubernetes.io/healthcheck-interval-seconds': '15',
+            'alb.ingress.kubernetes.io/healthcheck-timeout-seconds': '10'
           },
           hosts: [{
             host: '',
@@ -111,8 +157,39 @@ export class LangfuseHelmStack extends cdk.Stack {
             ]
           }]
         },
-        postgresql: {
-          deploy: false 
+        // 添加 Pod 反亲和性，避免单点故障
+        affinity: {
+          podAntiAffinity: {
+            preferredDuringSchedulingIgnoredDuringExecution: [
+              {
+                weight: 100,
+                podAffinityTerm: {
+                  labelSelector: {
+                    matchExpressions: [
+                      {
+                        key: 'app.kubernetes.io/name',
+                        operator: 'In',
+                        values: ['langfuse']
+                      }
+                    ]
+                  },
+                  topologyKey: 'kubernetes.io/hostname'
+                }
+              }
+            ]
+          }
+        },
+        // 添加 Pod 干扰预算
+        podDisruptionBudget: {
+          minAvailable: 1
+        },
+        // 添加自动伸缩配置
+        autoscaling: {
+          enabled: true,
+          minReplicas: 1,
+          maxReplicas: 3,
+          targetCPUUtilizationPercentage: 80,
+          targetMemoryUtilizationPercentage: 80
         }
       }
     });
