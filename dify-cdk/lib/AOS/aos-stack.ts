@@ -22,7 +22,7 @@ export class OpenSearchStack extends cdk.Stack {
 
     if (existingOpenSearchArn) {
       // 如果存在现有的 OpenSearch 域，则导入它
-      this.openSearchDomain = opensearch.Domain.fromDomainAttributes(this, 'ExistingDomain', {
+      this.openSearchDomain = opensearch.Domain.fromDomainAttributes(this, 'ExistingAosDomain', {
         domainArn: existingOpenSearchArn,
         domainEndpoint: this.extractDomainEndpoint(existingOpenSearchArn)
       });

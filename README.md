@@ -58,9 +58,18 @@ Configure cdk.json for dify, gnerate your own "difySecretKey" using "openssl ran
 ```json
     "context": {
     "existingResources": {
-      "vpcId": "vpc-xxxxxxxx",
-      "rdsInstance": "arn:aws:rds:region:account:db:instance-name",
-      "opensearchDomain": "arn:aws:opensearch:region:account:domain/domain-name",
+      "vpc": {
+        "vpcId": "vpc-xxxxxx",
+        "availabilityZones": ["us-west-2a", "us-west-2b"],
+        "publicSubnetIds": ["subnet-xxxxx1", "subnet-xxxxx2"],
+        "privateSubnetIds": ["subnet-xxxxx3", "subnet-xxxxx4"]
+      },
+      "rds": {
+        "clusterIdentifier": "existing-aurora-cluster",
+        "endpoint": "your-cluster-endpoint",
+        "port": 5432
+      },
+      "ExistingAosDomain": "arn:aws:opensearch:region:account:domain/domain-name",
       "subnetIds": [
         "subnet-xxxxxxxx",
         "subnet-yyyyyyyy"
@@ -68,10 +77,8 @@ Configure cdk.json for dify, gnerate your own "difySecretKey" using "openssl ran
       "securityGroups": [
         "sg-xxxxxxxx"
       ],
-      "eksCluster": {
-        "clusterName": "your-existing-cluster-name",
-        "clusterArn": "arn:aws:eks:region:account:cluster/your-cluster-name"
-      }
+      "eksCluster": "existing-cluster-name",
+      "kubectlRoleArn": "arn:aws:iam::ACCOUNT:role/kubectl-role",
      }
     }
 ```
