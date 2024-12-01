@@ -17,6 +17,7 @@
     ]
   },
   "context": {
+    "existingResources":{},
     "dbPassword": "awsAWS09100910!",
     "opensearchPassword": "awsAWS09100910!",
     "S3AccessKey": "Your S3AccessKey",

@@ -37,6 +37,7 @@ Download cdk code
 git clone https://github.com/aws-samples/solution-for-deploying-dify-on-aws.git
 cd solution-for-deploying-dify-on-aws/dify-cdk/
 npm install
+npm install @aws-cdk/aws-opensearchservice
 ```
 
 1.Deploy dify and langfuse
@@ -53,7 +54,27 @@ Configure cdk.json for dify, gnerate your own "difySecretKey" using "openssl ran
     "nextAuthSecret":"openssl rand -base64 32",
     "salt":"openssl rand -base64 32",
 ```
-
+[Optional] Configure cdk.json for exsiting VPC, Opensearch, RDS and EKS
+```json
+    "context": {
+    "existingResources": {
+      "vpcId": "vpc-xxxxxxxx",
+      "rdsInstance": "arn:aws:rds:region:account:db:instance-name",
+      "opensearchDomain": "arn:aws:opensearch:region:account:domain/domain-name",
+      "subnetIds": [
+        "subnet-xxxxxxxx",
+        "subnet-yyyyyyyy"
+      ],
+      "securityGroups": [
+        "sg-xxxxxxxx"
+      ],
+      "eksCluster": {
+        "clusterName": "your-existing-cluster-name",
+        "clusterArn": "arn:aws:eks:region:account:cluster/your-cluster-name"
+      }
+     }
+    }
+```
 2.Configure cdk environment, only need to run once
 ```bash
 cdk synth
